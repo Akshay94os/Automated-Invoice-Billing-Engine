@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ invoice.invoice_number }}</title><style>body{font-family:sans-serif;padding:2rem;background:#090d16;color:#fff;max-width:750px;margin:auto;}a{color:#38bdf8;}.invoice-box{background:#1e293b;padding:2rem;border-radius:8px;margin:1rem 0;}table{width:100%;border-collapse:collapse;margin:1rem 0;}th,td{padding:8px;border-bottom:1px solid #334155;text-align:left;}input{padding:8px;background:#0f172a;border:1px solid #334155;color:#fff;}button{background:#10b981;color:white;padding:8px 16px;border:none;cursor:pointer;}</style></head>
+<body>
+  <a href="/">&larr; Back to Invoices</a>
+  <div class="invoice-box">
+    <h1>{{ invoice.invoice_number }}</h1>
+    <p><b>Billed To:</b> {{ invoice.client_name }} ({{ invoice.client_email }})</p>
+    <p><small>Created: {{ invoice.created_at|date:"M d, Y" }}</small></p>
+
+    <table>
+      <tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+      {% for item in invoice.items.all %}
+        <tr><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>${{ item.unit_price }}</td><td>${{ item.total_price }}</td></tr>
+      {% empty %}
+        <tr><td colspan="4">No line items added yet.</td></tr>
+      {% endfor %}
+    </table>
+
+    <h3 style="text-align:right;">Subtotal: ${{ invoice.subtotal }}</h3>
+    <h3 style="text-align:right;">Tax ({{ invoice.tax_percent }}%): Included</h3>
+    <h2 style="text-align:right;color:#38bdf8;">Total Due: ${{ invoice.total_due }}</h2>
+  </div>
+
+  <h3>Add Line Item</h3>
+  <form method="POST" style="display:flex;gap:8px;">
+    {% csrf_token %}
+    <input name="description" placeholder="Service / Item Description" required style="flex:2;">
+    <input name="quantity" type="number" value="1" min="1" placeholder="Qty" style="flex:0.5;">
+    <input name="unit_price" type="number" step="0.01" placeholder="Price ($)" required style="flex:1;">
+    <button type="submit">Add Item</button>
+  </form>
+</body>
+</html>
